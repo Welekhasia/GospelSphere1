@@ -3,6 +3,6 @@
     <item
         android:width="66dp"
         android:height="66dp"
-        android:drawable="@drawable/img_app_icon_1784912319310"
+        android:drawable="@drawable/img_gospelsphere_logo_1785444018542"
         android:gravity="center" />
 </layer-list>

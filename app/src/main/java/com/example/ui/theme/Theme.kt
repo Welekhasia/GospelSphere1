@@ -12,35 +12,35 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = GoldDarkPrimary,
-    onPrimary = Color.Black,
-    primaryContainer = OnGoldContainer,
+    primary = GospelGold,
+    onPrimary = NavyPrimary,
+    primaryContainer = NavySecondary,
     onPrimaryContainer = GoldContainer,
-    secondary = RoyalBlueLight,
-    secondaryContainer = DarkSurfaceVariant,
+    secondary = NavySecondary,
+    secondaryContainer = CardDark,
     tertiary = GraceTeal,
-    background = DarkBackground,
-    surface = DarkSurface,
-    surfaceVariant = DarkSurfaceVariant,
-    onBackground = Color.White,
-    onSurface = Color.White
+    background = BgDark,
+    surface = CardDark,
+    surfaceVariant = NavySecondary,
+    onBackground = TextLight,
+    onSurface = TextLight
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = GoldPrimary,
+    primary = NavyPrimary,
     onPrimary = Color.White,
     primaryContainer = GoldContainer,
     onPrimaryContainer = OnGoldContainer,
-    secondary = RoyalBlue,
-    secondaryContainer = RoyalBlueContainer,
-    onSecondaryContainer = OnRoyalBlueContainer,
-    tertiary = GraceTeal,
-    tertiaryContainer = GraceTealContainer,
-    background = LightBackground,
-    surface = LightSurface,
-    surfaceVariant = LightSurfaceVariant,
-    onBackground = Color(0xFF0F172A),
-    onSurface = Color(0xFF0F172A)
+    secondary = NavySecondary,
+    secondaryContainer = Color(0xFFE2E8F0),
+    onSecondaryContainer = NavyPrimary,
+    tertiary = GospelGold,
+    tertiaryContainer = GoldContainer,
+    background = BgLight,
+    surface = CardLight,
+    surfaceVariant = Color(0xFFEBF1F8),
+    onBackground = TextDark,
+    onSurface = TextDark
 )
 
 @Composable

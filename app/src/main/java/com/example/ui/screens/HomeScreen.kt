@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -49,10 +50,10 @@ fun HomeScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(220.dp)
+                .height(230.dp)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.img_gospelsphere_hero_1784912336406),
+                painter = painterResource(id = R.drawable.img_gospelsphere_hero_1785444029947),
                 contentDescription = "GospelSphere Hero Banner",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
@@ -64,7 +65,7 @@ fun HomeScreen(
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.85f))
+                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.88f))
                         )
                     )
             )
@@ -74,21 +75,34 @@ fun HomeScreen(
                     .align(Alignment.BottomStart)
                     .padding(20.dp)
             ) {
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = MaterialTheme.colorScheme.primary,
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(bottom = 6.dp)
                 ) {
-                    Text(
-                        text = "Global Christian Digital Ecosystem",
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onPrimary
+                    Image(
+                        painter = painterResource(id = R.drawable.img_gospelsphere_logo_1785444018542),
+                        contentDescription = "GospelSphere Logo",
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
                     )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        color = MaterialTheme.colorScheme.primary
+                    ) {
+                        Text(
+                            text = "Global Christian Platform",
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
                 }
 
                 Text(
-                    text = "Welcome to GospelSphere",
+                    text = "GospelSphere",
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold,
                         color = Color.White
@@ -96,9 +110,12 @@ fun HomeScreen(
                 )
 
                 Text(
-                    text = "Connecting Believers, Churches, Music & Prayer Worldwide",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.9f)
+                    text = "ONE FAITH. ONE PLATFORM. LIMITLESS IMPACT.",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 1.2.sp
+                    ),
+                    color = Color(0xFF64B5F6)
                 )
             }
         }
@@ -186,7 +203,7 @@ fun HomeScreen(
         ) {
             EcosystemShortcutItem("Music", Icons.Default.MusicNote, "music") { onNavigate("music") }
             EcosystemShortcutItem("Videos", Icons.Default.VideoLibrary, "videos") { onNavigate("videos") }
-            EcosystemShortcutItem("Bible", Icons.Default.MenuBook, "bible") { onNavigate("bible") }
+            EcosystemShortcutItem("Bible", Icons.AutoMirrored.Filled.MenuBook, "bible") { onNavigate("bible") }
             EcosystemShortcutItem("Prayer", Icons.Default.VolunteerActivism, "prayer") { onNavigate("prayer") }
         }
 

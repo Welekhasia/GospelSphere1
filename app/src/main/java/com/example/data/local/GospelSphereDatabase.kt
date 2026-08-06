@@ -29,7 +29,7 @@ abstract class GospelSphereDatabase : RoomDatabase() {
                     GospelSphereDatabase::class.java,
                     "gospelsphere_database"
                 )
-                .fallbackToDestructiveMigration()
+                .fallbackToDestructiveMigration(true)
                 .build()
                 INSTANCE = instance
                 instance
