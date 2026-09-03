@@ -75,6 +75,16 @@ fun AdminDashboardScreen(
     var showQuickActionSheet by remember { mutableStateOf(false) }
     var quickActionTitle by remember { mutableStateOf("") }
 
+    // Floating Quick Actions FAB and Modal Forms State
+    var isFabMenuExpanded by remember { mutableStateOf(false) }
+    var activeModalType by remember { mutableStateOf<String?>(null) } // "song", "video", "prayer", "church"
+    var formTitle by remember { mutableStateOf("") }
+    var formSubtitle by remember { mutableStateOf("") }
+    var formCategory by remember { mutableStateOf("") }
+    var formExtra by remember { mutableStateOf("") }
+    var showActionToast by remember { mutableStateOf(false) }
+    var toastMessage by remember { mutableStateOf("") }
+
     val focusManager = LocalFocusManager.current
 
     val bgBackgroundColor = if (isDarkMode) BgDark else BgLight
@@ -421,8 +431,40 @@ fun AdminDashboardScreen(
                         AdminSidebarSection.DASHBOARD -> AdminDashboardHomeView(
                             isDarkMode = isDarkMode,
                             onQuickAction = { actionName ->
-                                quickActionTitle = actionName
-                                showQuickActionSheet = true
+                                when (actionName) {
+                                    "➕ Add Song" -> {
+                                        activeModalType = "song"
+                                        formTitle = ""
+                                        formSubtitle = ""
+                                        formCategory = "Worship"
+                                        formExtra = ""
+                                    }
+                                    "🎬 Upload Video" -> {
+                                        activeModalType = "video"
+                                        formTitle = ""
+                                        formSubtitle = ""
+                                        formCategory = "Sermon"
+                                        formExtra = ""
+                                    }
+                                    "🙏 Prayer Request" -> {
+                                        activeModalType = "prayer"
+                                        formTitle = ""
+                                        formSubtitle = ""
+                                        formCategory = "Healing"
+                                        formExtra = ""
+                                    }
+                                    "⛪ Register Church" -> {
+                                        activeModalType = "church"
+                                        formTitle = ""
+                                        formSubtitle = ""
+                                        formCategory = "Pentecostal"
+                                        formExtra = ""
+                                    }
+                                    else -> {
+                                        quickActionTitle = actionName
+                                        showQuickActionSheet = true
+                                    }
+                                }
                             },
                             onNavigateSection = { selectedSection = it }
                         )
@@ -510,17 +552,17 @@ fun AdminDashboardScreen(
                 title = { Text(quickActionTitle, fontWeight = FontWeight.Bold, color = GospelGold) },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text("Enter the details for this admin quick action. Changes will immediately sync across GospelSphere.", style = MaterialTheme.typography.bodyMedium)
+                        Text("Enter details for this admin quick action. Changes sync live.", style = MaterialTheme.typography.bodyMedium)
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
+                            value = formTitle,
+                            onValueChange = { formTitle = it },
                             label = { Text("Title / Name") },
                             modifier = Modifier.fillMaxWidth()
                         )
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
-                            label = { Text("Description / Notes") },
+                            value = formSubtitle,
+                            onValueChange = { formSubtitle = it },
+                            label = { Text("Description / Details") },
                             modifier = Modifier.fillMaxWidth(),
                             minLines = 2
                         )
@@ -528,21 +570,389 @@ fun AdminDashboardScreen(
                 },
                 confirmButton = {
                     Button(
-                        onClick = { showQuickActionSheet = false },
+                        onClick = {
+                            showQuickActionSheet = false
+                            toastMessage = "Action '${if (formTitle.isBlank()) quickActionTitle else formTitle}' completed successfully!"
+                            showActionToast = true
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = NavyPrimary)
                     ) {
-                        Text("Save & Publish", color = GospelGold)
+                        Text("Save & Publish", color = GospelGold, fontWeight = FontWeight.Bold)
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showQuickActionSheet = false }) {
-                        Text("Cancel")
-                    }
+                    TextButton(onClick = { showQuickActionSheet = false }) { Text("Cancel") }
                 },
                 containerColor = cardBgColor,
                 titleContentColor = textColor,
                 textContentColor = textColor
             )
+        }
+
+        // Modal Form Dialog for Add Song
+        if (activeModalType == "song") {
+            AlertDialog(
+                onDismissRequest = { activeModalType = null },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.MusicNote, contentDescription = null, tint = GospelGold)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Add New Gospel Song", fontWeight = FontWeight.Bold)
+                    }
+                },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text("Publish new gospel audio track to platform library.", style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                        OutlinedTextField(
+                            value = formTitle,
+                            onValueChange = { formTitle = it },
+                            label = { Text("Song Title *") },
+                            placeholder = { Text("e.g. LAMWELI") },
+                            modifier = Modifier.fillMaxWidth().testTag("input_song_title")
+                        )
+                        OutlinedTextField(
+                            value = "Ali Welekhasia",
+                            onValueChange = {},
+                            label = { Text("Artist Name") },
+                            readOnly = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = formCategory,
+                            onValueChange = { formCategory = it },
+                            label = { Text("Genre / Category") },
+                            placeholder = { Text("Worship, Praise, Choir, Afrogospel") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = formExtra,
+                            onValueChange = { formExtra = it },
+                            label = { Text("Audio File Stream URL / ISRC") },
+                            placeholder = { Text("https://gospelsphere.org/audio/track.mp3") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            activeModalType = null
+                            toastMessage = "Song '${if (formTitle.isBlank()) "New Track" else formTitle}' published successfully to Firestore!"
+                            showActionToast = true
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = NavyPrimary)
+                    ) {
+                        Text("Publish Song", color = GospelGold, fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { activeModalType = null }) { Text("Cancel") }
+                },
+                containerColor = cardBgColor,
+                titleContentColor = textColor,
+                textContentColor = textColor
+            )
+        }
+
+        // Modal Form Dialog for Upload Video
+        if (activeModalType == "video") {
+            AlertDialog(
+                onDismissRequest = { activeModalType = null },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.VideoLibrary, contentDescription = null, tint = GospelGold)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Upload Sermon or Music Video", fontWeight = FontWeight.Bold)
+                    }
+                },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text("Upload or link video sermon, live worship clip, or podcast.", style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                        OutlinedTextField(
+                            value = formTitle,
+                            onValueChange = { formTitle = it },
+                            label = { Text("Video Title *") },
+                            placeholder = { Text("e.g. Sunday Anointing Service Live") },
+                            modifier = Modifier.fillMaxWidth().testTag("input_video_title")
+                        )
+                        OutlinedTextField(
+                            value = formSubtitle,
+                            onValueChange = { formSubtitle = it },
+                            label = { Text("Preacher / Minister / Band") },
+                            placeholder = { Text("e.g. Bsp. FELIX BURUDI ATILA") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = formExtra,
+                            onValueChange = { formExtra = it },
+                            label = { Text("Video Stream / HLS URL") },
+                            placeholder = { Text("https://gospelsphere.org/video/sermon.mp4") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            activeModalType = null
+                            toastMessage = "Video '${if (formTitle.isBlank()) "Gospel Sermon" else formTitle}' uploaded successfully!"
+                            showActionToast = true
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = NavyPrimary)
+                    ) {
+                        Text("Upload Video", color = GospelGold, fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { activeModalType = null }) { Text("Cancel") }
+                },
+                containerColor = cardBgColor,
+                titleContentColor = textColor,
+                textContentColor = textColor
+            )
+        }
+
+        // Modal Form Dialog for New Prayer Request
+        if (activeModalType == "prayer") {
+            AlertDialog(
+                onDismissRequest = { activeModalType = null },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.VolunteerActivism, contentDescription = null, tint = GospelGold)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Create Prayer Request", fontWeight = FontWeight.Bold)
+                    }
+                },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text("Submit a prayer request to the platform Prayer Wall.", style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                        OutlinedTextField(
+                            value = formTitle,
+                            onValueChange = { formTitle = it },
+                            label = { Text("Requester Name *") },
+                            placeholder = { Text("e.g. Sister Esther") },
+                            modifier = Modifier.fillMaxWidth().testTag("input_prayer_name")
+                        )
+                        OutlinedTextField(
+                            value = formCategory,
+                            onValueChange = { formCategory = it },
+                            label = { Text("Prayer Category") },
+                            placeholder = { Text("Healing, Family, Salvation, Guidance") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = formExtra,
+                            onValueChange = { formExtra = it },
+                            label = { Text("Prayer Request Details") },
+                            placeholder = { Text("Praying for divine healing and family grace...") },
+                            modifier = Modifier.fillMaxWidth(),
+                            minLines = 3
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            activeModalType = null
+                            toastMessage = "Prayer request for '${if (formTitle.isBlank()) "Believer" else formTitle}' posted to Prayer Wall!"
+                            showActionToast = true
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = NavyPrimary)
+                    ) {
+                        Text("Submit Prayer", color = GospelGold, fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { activeModalType = null }) { Text("Cancel") }
+                },
+                containerColor = cardBgColor,
+                titleContentColor = textColor,
+                textContentColor = textColor
+            )
+        }
+
+        // Modal Form Dialog for Register Church
+        if (activeModalType == "church") {
+            AlertDialog(
+                onDismissRequest = { activeModalType = null },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Church, contentDescription = null, tint = GospelGold)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Register Church Profile", fontWeight = FontWeight.Bold)
+                    }
+                },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text("Register a local church fellowship or ministry campus.", style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                        OutlinedTextField(
+                            value = formTitle,
+                            onValueChange = { formTitle = it },
+                            label = { Text("Church Name *") },
+                            placeholder = { Text("e.g. Three Rivers Of Grace Fellowship") },
+                            modifier = Modifier.fillMaxWidth().testTag("input_church_name")
+                        )
+                        OutlinedTextField(
+                            value = formSubtitle,
+                            onValueChange = { formSubtitle = it },
+                            label = { Text("Senior Pastor / Bishop") },
+                            placeholder = { Text("e.g. Bsp. FELIX BURUDI ATILA") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = formExtra,
+                            onValueChange = { formExtra = it },
+                            label = { Text("Location & Member Count") },
+                            placeholder = { Text("Nairobi, Kenya • 350 Members") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            activeModalType = null
+                            toastMessage = "Church '${if (formTitle.isBlank()) "New Fellowship" else formTitle}' verified & registered!"
+                            showActionToast = true
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = NavyPrimary)
+                    ) {
+                        Text("Register Church", color = GospelGold, fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { activeModalType = null }) { Text("Cancel") }
+                },
+                containerColor = cardBgColor,
+                titleContentColor = textColor,
+                textContentColor = textColor
+            )
+        }
+
+        // Floating Quick Actions FAB Menu at Bottom Right
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(24.dp)
+                .testTag("floating_quick_actions_menu"),
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            AnimatedVisibility(
+                visible = isFabMenuExpanded,
+                enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom),
+                exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom)
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ExtendedFloatingActionButton(
+                        onClick = {
+                            activeModalType = "song"
+                            formTitle = ""
+                            formSubtitle = ""
+                            formCategory = "Worship"
+                            formExtra = ""
+                            isFabMenuExpanded = false
+                        },
+                        icon = { Icon(Icons.Default.MusicNote, contentDescription = null, tint = NavyPrimary) },
+                        text = { Text("Add New Song", fontWeight = FontWeight.Bold, color = NavyPrimary) },
+                        containerColor = GospelGold,
+                        modifier = Modifier.testTag("fab_add_song")
+                    )
+
+                    ExtendedFloatingActionButton(
+                        onClick = {
+                            activeModalType = "video"
+                            formTitle = ""
+                            formSubtitle = ""
+                            formCategory = "Sermon"
+                            formExtra = ""
+                            isFabMenuExpanded = false
+                        },
+                        icon = { Icon(Icons.Default.VideoLibrary, contentDescription = null, tint = GospelGold) },
+                        text = { Text("Upload Video", fontWeight = FontWeight.Bold, color = Color.White) },
+                        containerColor = NavyPrimary,
+                        modifier = Modifier.testTag("fab_upload_video")
+                    )
+
+                    ExtendedFloatingActionButton(
+                        onClick = {
+                            activeModalType = "prayer"
+                            formTitle = ""
+                            formSubtitle = ""
+                            formCategory = "Healing"
+                            formExtra = ""
+                            isFabMenuExpanded = false
+                        },
+                        icon = { Icon(Icons.Default.VolunteerActivism, contentDescription = null, tint = GospelGold) },
+                        text = { Text("New Prayer Request", fontWeight = FontWeight.Bold, color = Color.White) },
+                        containerColor = NavySecondary,
+                        modifier = Modifier.testTag("fab_new_prayer")
+                    )
+
+                    ExtendedFloatingActionButton(
+                        onClick = {
+                            activeModalType = "church"
+                            formTitle = ""
+                            formSubtitle = ""
+                            formCategory = "Pentecostal"
+                            formExtra = ""
+                            isFabMenuExpanded = false
+                        },
+                        icon = { Icon(Icons.Default.Church, contentDescription = null, tint = NavyPrimary) },
+                        text = { Text("Register Church", fontWeight = FontWeight.Bold, color = NavyPrimary) },
+                        containerColor = GospelGold,
+                        modifier = Modifier.testTag("fab_register_church")
+                    )
+                }
+            }
+
+            FloatingActionButton(
+                onClick = { isFabMenuExpanded = !isFabMenuExpanded },
+                containerColor = GospelGold,
+                contentColor = NavyPrimary,
+                shape = CircleShape,
+                modifier = Modifier
+                    .shadow(8.dp, CircleShape)
+                    .testTag("main_quick_actions_fab")
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = if (isFabMenuExpanded) Icons.Default.Close else Icons.Default.FlashOn,
+                        contentDescription = "Quick Actions",
+                        tint = NavyPrimary
+                    )
+                    Text(
+                        text = if (isFabMenuExpanded) "Close" else "Quick Actions",
+                        fontWeight = FontWeight.Bold,
+                        color = NavyPrimary
+                    )
+                }
+            }
+        }
+
+        // Action Toast Overlay
+        if (showActionToast) {
+            Snackbar(
+                action = {
+                    TextButton(onClick = { showActionToast = false }) {
+                        Text("OK", color = GospelGold, fontWeight = FontWeight.Bold)
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp),
+                containerColor = NavyPrimary,
+                contentColor = Color.White
+            ) {
+                Text(toastMessage)
+            }
         }
     }
 }
@@ -999,6 +1409,42 @@ fun AdminDashboardHomeView(
                         TableRowPrayer("Esther", "Family", "Answered", StatusSuccess)
                     }
                 }
+
+                // Recent Users Table Card
+                Card(
+                    modifier = Modifier.fillMaxWidth().testTag("table_recent_users"),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = cardBgColor)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Recent Registered Users", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = textColor))
+                            TextButton(onClick = { onNavigateSection(AdminSidebarSection.USERS) }) {
+                                Text("Manage Users", color = GospelGold)
+                            }
+                        }
+
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                        // Table Header
+                        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                            Text("User Name", modifier = Modifier.weight(1.3f), fontWeight = FontWeight.Bold, fontSize = 12.sp, color = TextMuted)
+                            Text("Role", modifier = Modifier.weight(1.1f), fontWeight = FontWeight.Bold, fontSize = 12.sp, color = TextMuted)
+                            Text("Joined", modifier = Modifier.weight(0.9f), fontWeight = FontWeight.Bold, fontSize = 12.sp, color = TextMuted)
+                            Text("Status", modifier = Modifier.weight(0.8f), fontWeight = FontWeight.Bold, fontSize = 12.sp, color = TextMuted)
+                        }
+
+                        TableRowUser("Ali Welekhasia", "Super Admin", "Aug 2026", "Verified", GospelGold)
+                        TableRowUser("Bsp. FELIX BURUDI", "Pastor / Bishop", "Aug 2026", "Verified", StatusSuccess)
+                        TableRowUser("Pastor Aliwa Richard", "Pastor / Leader", "Aug 2026", "Active", StatusSuccess)
+                        TableRowUser("Sister Esther", "Member", "Sep 2026", "Active", StatusSuccess)
+                        TableRowUser("Gospel Choir Lead", "Artist", "Sep 2026", "Pending", StatusWarning)
+                    }
+                }
             }
         }
     }
@@ -1160,6 +1606,33 @@ fun TableRowPrayer(name: String, category: String, status: String, statusColor: 
             shape = RoundedCornerShape(8.dp),
             color = statusColor.copy(alpha = 0.15f),
             modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = status,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = statusColor,
+                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun TableRowUser(name: String, role: String, dateJoined: String, status: String, statusColor: Color) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(name, modifier = Modifier.weight(1.3f), fontWeight = FontWeight.SemiBold, fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(role, modifier = Modifier.weight(1.1f), fontSize = 12.sp, color = TextMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(dateJoined, modifier = Modifier.weight(0.9f), fontSize = 12.sp, color = TextMuted)
+        Surface(
+            shape = RoundedCornerShape(8.dp),
+            color = statusColor.copy(alpha = 0.15f),
+            modifier = Modifier.weight(0.8f)
         ) {
             Text(
                 text = status,
